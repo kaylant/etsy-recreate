@@ -33,7 +33,21 @@ var HomeView = Backbone.View.extend ({
 	},
 
 	events: {
-		"click": "_triggerDetailView" 
+		"click": "_triggerDetailView", 
+		"keydown input": "_searchKeywords"
+		// "keydown input": "_alertFunction"
+	},
+
+	// _alertFunction: function() {
+	// 	alert ("input!")
+	// },
+
+	_searchKeywords: function (event) {
+		console.log("search from input")
+		var searchKeywords = event.target.value
+		if(event.keyCode === 13){
+			window.location.hash = 'search/' + searchKeywords
+		}
 	},
 
 	_triggerDetailView: function(clickEvent) {
@@ -59,23 +73,24 @@ var HomeView = Backbone.View.extend ({
 	},
 
 	_generateHtml: function(response) {
-		console.log(response)
+		// console.log(response)
 		var imagesArray = response.Images
 		for(var i=0; i < imagesArray.length; i++){
 			var singleImage = imagesArray[i]
-			console.log(singleImage)
+			// console.log(singleImage)
 			var thumbnail = singleImage['url_570xN']
-			console.log(thumbnail)
+			// console.log(thumbnail)
 		}
 		var listing_id = response.listing_id
-		console.log(listing_id)
+		// console.log(listing_id)
 		var htmlString = "<div class='listingStyles'>"
 			htmlString +=   "<img listing_id='" + listing_id + "' src='" + thumbnail + "'/>"
 			htmlString += 	"<p>" + response.title + "</p>"
 			htmlString += 	"<p>" + response.listing_id + "</p>"
 			htmlString += "</div>"
 		return htmlString
-	}	
+	}
+	
 })
 
 
@@ -89,16 +104,16 @@ var DetailView = Backbone.View.extend ({
 	},
 
 	_render: function() {
-		console.log(this.model)
-		console.log("yee haw")
+		// console.log(this.model)
+		// console.log("yee haw")
 		var itemDetails = this.model.attributes.results[0]
 
 		var imagesArray = itemDetails.Images
 		for(var i=0; i < imagesArray.length; i++){
 			var singleImage = imagesArray[i]
-			console.log(singleImage)
+			// console.log(singleImage)
 			var thumbnail = singleImage['url_570xN']
-			console.log(thumbnail)
+			// console.log(thumbnail)
 		}
 		var htmlString = "<div class='listingStyles'>"
 			htmlString +=   "<img src='" + thumbnail + "'/>"
@@ -120,11 +135,12 @@ var etsyRouter = Backbone.Router.extend ({
 	routes: {
 		"home": "handleHomeView",
 		"detail/:id": "handleDetailView",
+		"search/:searchKeywords": "handleSearchView",
 		"*default": "handleHomeView"
 	},
 
 	handleHomeView: function() {
-		console.log("handling home view")
+		// console.log("handling home view")
 		var nc = new HomeCollection()
 		var nv = new HomeView(nc)
 		nc.fetch({
@@ -137,7 +153,7 @@ var etsyRouter = Backbone.Router.extend ({
 	},
 
 	handleDetailView: function(id) {
-		console.log("...ROUTER-handleDetailView")
+		// console.log("...ROUTER-handleDetailView")
 		var singleModel = new DetailModel()
 		singleModel._generateUrl(id)
 		var detailView = new DetailView(singleModel)
@@ -148,6 +164,19 @@ var etsyRouter = Backbone.Router.extend ({
  				api_key: singleModel._apiKey
  			}
  		})
+	},
+
+	handleSearchView: function(searchKeywords) {
+		console.log("searching...")
+		var nsc = new HomeCollection()
+		var nsv = new HomeView(nsc)
+		nsc.fetch({
+			dataType: "JSONP",
+			data: {
+				keywords: searchKeywords, 
+				api_key: nsc._apiKey
+			}
+		}) 
 	},
 
 	initialize: function() {
