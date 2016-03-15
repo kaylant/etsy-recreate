@@ -42,10 +42,10 @@ var HomeView = Backbone.View.extend ({
 	// 	alert ("input!")
 	// },
 
-	_searchKeywords: function (event) {
+	_searchKeywords: function (keyEvent) {
 		console.log("search from input")
-		var searchKeywords = event.target.value
-		if(event.keyCode === 13){
+		var searchKeywords = keyEvent.target.value
+		if(keyEvent.keyCode === 13){
 			window.location.hash = 'search/' + searchKeywords
 		}
 	},
@@ -62,7 +62,7 @@ var HomeView = Backbone.View.extend ({
 		console.log(this.collection)
 		var listingsArray = this.collection.models[0].attributes.results
 		// console.log(listingsArray)
-		var totalHtmlString = ''
+		var totalHtmlString = "<input>"
 		for(var i=0; i < listingsArray.length; i++){
 			var singleListing = listingsArray[i]
 			// var listing_id = singleListing.listing_id
