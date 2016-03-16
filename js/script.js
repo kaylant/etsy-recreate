@@ -33,21 +33,10 @@ var HomeView = Backbone.View.extend ({
 	},
 
 	events: {
-		"click": "_triggerDetailView", 
-		"keydown input": "_searchKeywords"
-		// "keydown input": "_alertFunction"
-	},
-
-	// _alertFunction: function() {
-	// 	alert ("input!")
-	// },
-
-	_searchKeywords: function (keyEvent) {
-		console.log("search from input")
-		var searchKeywords = keyEvent.target.value
-		if(keyEvent.keyCode === 13){
-			window.location.hash = 'search/' + searchKeywords
-		}
+		"click .listingStyles": "_triggerDetailView", 
+		"keydown input": "_searchKeywords",
+		"click #rightArrow": "_seeNextListing",
+		"click #leftArrow": "_seePreviousListing"
 	},
 
 	_triggerDetailView: function(clickEvent) {
@@ -58,8 +47,46 @@ var HomeView = Backbone.View.extend ({
 		// console.log("success")
 	},
 
+	_seeNextListing: function(clickEvent) {
+		var rightArrow = clickEvent.target
+		console.log("rightArrow")
+		var listingsArray = this.collection.models[0].attributes.results
+		for(var i=0; i < listingsArray.length; i++){
+			var nextListing = listingsArray[i + 1]
+			console.log(nextListing)
+
+		window.location.hash = "detail/" + nextListing.listing_id
+		}
+	},
+
+	// _seeNextListing: function(clickEvent) {
+	// 	var rightArrow = clickEvent.target
+	// 	console.log("rightArrow")
+	// 	var listingsArray = this.collection.models[0].attributes.results
+	// 	for(var i=0; i < listingsArray.length; i++){
+	// 		var nextListing = listingsArray[i + 1]
+	// 		console.log(nextListing)
+
+	// 	window.location.hash = "detail/" + nextListing.listing_id
+	// 	}
+	// },
+
+	_seePreviousListing: function(clickEvent) {
+		var leftArrow = clickEvent.target
+		console.log("leftArrow")
+		// window.location.hash = "detail/" + listingNode.getAttribute('listing_id')
+	},
+
+	_searchKeywords: function(keyEvent) {
+		console.log("search from input")
+		var searchKeywords = keyEvent.target.value
+		if(keyEvent.keyCode === 13){
+			window.location.hash = 'search/' + searchKeywords
+		}
+	},
+
 	_render: function() {
-		console.log(this.collection)
+		// console.log(this.collection)
 		var listingsArray = this.collection.models[0].attributes.results
 		// console.log(listingsArray)
 		var totalHtmlString = "<input>"
@@ -85,8 +112,10 @@ var HomeView = Backbone.View.extend ({
 		// console.log(listing_id)
 		var htmlString = "<div class='listingStyles'>"
 			htmlString +=   "<img listing_id='" + listing_id + "' src='" + thumbnail + "'/>"
-			htmlString += 	"<p>" + response.title + "</p>"
-			htmlString += 	"<p>" + response.listing_id + "</p>"
+			htmlString +=	"<div class='listingInfoStyles'>"
+			htmlString += 		"<p>" + response.title + "</p>"
+			htmlString += 		"<p>" + response.listing_id + "</p>"
+			htmlString += 	"</div>"
 			htmlString += "</div>"
 		return htmlString
 	}
@@ -103,6 +132,18 @@ var DetailView = Backbone.View.extend ({
 		this.model.on("sync", boundRender)
 	},
 
+	events: {
+		"keydown input": "_searchKeywords"
+	},
+
+	_searchKeywords: function(keyEvent) {
+		console.log("search from input")
+		var searchKeywords = keyEvent.target.value
+		if(keyEvent.keyCode === 13){
+			window.location.hash = 'search/' + searchKeywords
+		}
+	},
+
 	_render: function() {
 		// console.log(this.model)
 		// console.log("yee haw")
@@ -115,11 +156,22 @@ var DetailView = Backbone.View.extend ({
 			var thumbnail = singleImage['url_570xN']
 			// console.log(thumbnail)
 		}
-		var htmlString = "<div class='listingStyles'>"
+		var htmlString = "<input>"
+		    htmlString += "<div class='listingStylesDetail'>"
 			htmlString +=   "<img src='" + thumbnail + "'/>"
-			htmlString += 	"<p>" + itemDetails.title + "</p>"
-			htmlString += 	"<p>" + itemDetails.description + "</p>"
-			htmlString += 	"<p>" + itemDetails.listing_id + "</p>"
+			htmlString +=	"<div class='listingInfoStylesDetail'>"
+			htmlString += 		"<p>" + itemDetails.title + "</p>"
+			htmlString += 		"<p>" + itemDetails.description + "</p>"
+			htmlString += 		"<p>" + itemDetails.listing_id + "</p>"
+			htmlString += 	"</div>"
+			htmlString += "</div>"
+			htmlString += "<div class='arrowButtons'>"
+			htmlString += 		"<div id='leftArrow'>"
+			htmlString += 			"<img src='./images/arrows.svg'/>"
+			htmlString += 		"</div>"
+			htmlString += 		"<div id='rightArrow'>"
+			htmlString += 			"<img src='./images/arrows.svg'/>"
+			htmlString += 		"</div>"			
 			htmlString += "</div>"
 		this.el.innerHTML = htmlString	
 	},
@@ -167,7 +219,7 @@ var etsyRouter = Backbone.Router.extend ({
 	},
 
 	handleSearchView: function(searchKeywords) {
-		console.log("searching...")
+		console.log("searching...handleSearchView")
 		var nsc = new HomeCollection()
 		var nsv = new HomeView(nsc)
 		nsc.fetch({
